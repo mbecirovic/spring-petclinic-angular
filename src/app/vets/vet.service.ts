@@ -20,59 +20,57 @@
  * @author Vitaliy Fedoriv
  */
 
-import {Injectable} from '@angular/core';
-import {environment} from '../../environments/environment';
-import {Observable} from 'rxjs';
-import {Vet} from './vet';
-import {HttpClient} from '@angular/common/http';
-import {HandleError, HttpErrorHandler} from '../error.service';
-import {catchError} from 'rxjs/operators';
-
+import { Injectable } from "@angular/core";
+import { environment } from "../../environments/environment";
+import { Observable } from "rxjs";
+import { Vet } from "./vet";
+import { HttpClient } from "@angular/common/http";
+import { HandleError, HttpErrorHandler } from "../error.service";
+import { catchError } from "rxjs/operators";
+import { ConfigService } from "../config.service";
 
 @Injectable()
 export class VetService {
-
-  entityUrl = environment.REST_API_URL + 'vets';
+  entityUrl = environment.REST_API_URL + "vets";
 
   private readonly handlerError: HandleError;
 
-  constructor(private http: HttpClient, private httpErrorHandler: HttpErrorHandler) {
-    this.handlerError = httpErrorHandler.createHandleError('OwnerService');
+  constructor(
+    private http: HttpClient,
+    private httpErrorHandler: HttpErrorHandler,
+    private config: ConfigService,
+  ) {
+    this.handlerError = httpErrorHandler.createHandleError("OwnerService");
+    this.entityUrl = this.config.getConfig("REST_API_URL") + "vets";
   }
 
   getVets(): Observable<Vet[]> {
-    return this.http.get<Vet[]>(this.entityUrl)
-      .pipe(
-        catchError(this.handlerError('getVets', []))
-      );
+    return this.http
+      .get<Vet[]>(this.entityUrl)
+      .pipe(catchError(this.handlerError("getVets", [])));
   }
 
   getVetById(vetId: string): Observable<Vet> {
-    return this.http.get<Vet>((this.entityUrl + '/' + vetId))
-      .pipe(
-        catchError(this.handlerError('getVetById', {} as Vet))
-      );
+    return this.http
+      .get<Vet>(this.entityUrl + "/" + vetId)
+      .pipe(catchError(this.handlerError("getVetById", {} as Vet)));
   }
 
   updateVet(vetId: string, vet: Vet): Observable<Vet> {
-    return this.http.put<Vet>(this.entityUrl + '/' + vetId, vet)
-      .pipe(
-        catchError(this.handlerError('updateVet', vet))
-      );
+    return this.http
+      .put<Vet>(this.entityUrl + "/" + vetId, vet)
+      .pipe(catchError(this.handlerError("updateVet", vet)));
   }
 
   addVet(vet: Vet): Observable<Vet> {
-    return this.http.post<Vet>(this.entityUrl, vet)
-      .pipe(
-        catchError(this.handlerError('addVet', vet))
-      );
+    return this.http
+      .post<Vet>(this.entityUrl, vet)
+      .pipe(catchError(this.handlerError("addVet", vet)));
   }
 
   deleteVet(vetId: string): Observable<number> {
-    return this.http.delete<number>(this.entityUrl + '/' + vetId)
-      .pipe(
-        catchError(this.handlerError('deleteVet', 0))
-      );
+    return this.http
+      .delete<number>(this.entityUrl + "/" + vetId)
+      .pipe(catchError(this.handlerError("deleteVet", 0)));
   }
-
 }

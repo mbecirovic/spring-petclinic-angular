@@ -20,27 +20,28 @@
  * @author Vitaliy Fedoriv
  */
 
-import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
-import {AppComponent} from './app.component';
-import {AppRoutingModule} from './app-routing.module';
-import {OwnersModule} from './owners/owners.module';
-import {PetsModule} from './pets/pets.module';
-import {VisitsModule} from './visits/visits.module';
-import {PetTypesModule} from './pettypes/pettypes.module';
-import {VetsModule} from './vets/vets.module';
-import {PartsModule} from './parts/parts.module';
-import {SpecialtiesModule} from './specialties/specialties.module';
-import {HttpErrorHandler} from './error.service';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule, APP_INITIALIZER } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { HttpClientModule } from "@angular/common/http";
+import { AppComponent } from "./app.component";
+import { ConfigService } from "./config.service";
+import { AppRoutingModule } from "./app-routing.module";
+import { OwnersModule } from "./owners/owners.module";
+import { PetsModule } from "./pets/pets.module";
+import { VisitsModule } from "./visits/visits.module";
+import { PetTypesModule } from "./pettypes/pettypes.module";
+import { VetsModule } from "./vets/vets.module";
+import { PartsModule } from "./parts/parts.module";
+import { SpecialtiesModule } from "./specialties/specialties.module";
+import { HttpErrorHandler } from "./error.service";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-
+export function appInitializerFactory(configService: ConfigService) {
+  return () => configService.loadConfig();
+}
 @NgModule({
-  declarations: [
-    AppComponent,
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -53,12 +54,18 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     SpecialtiesModule,
     PartsModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [
     HttpErrorHandler,
+    ConfigService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFactory,
+      deps: [ConfigService],
+      multi: true,
+    },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

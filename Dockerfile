@@ -1,33 +1,32 @@
-ARG DOCKER_HUB="docker.io"
-ARG NGINX_VERSION="1.17.6"
-ARG NODE_VERSION="16.3-alpine"
+FROM node:22.21-alpine AS builder
+WORKDIR /petclinicapp
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build --omit=dev
 
-FROM $DOCKER_HUB/library/node:$NODE_VERSION as build
+FROM nginx:alpine AS final
 
+# Copy built Angular app
+COPY --from=builder /petclinicapp/dist/ /usr/share/nginx/html/
 
-COPY . /workspace/
+# Copy our external Nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-ARG NPM_REGISTRY=" https://registry.npmjs.org"
+# Fix permissions
+RUN chmod a+rwx /var/cache/nginx /var/run /var/log/nginx
 
-RUN echo "registry = \"$NPM_REGISTRY\"" > /workspace/.npmrc                              && \
-    cd /workspace/                                                                       && \
-    npm install                                                                          && \
-    npm run build
+# Copy entrypoint for dynamic config
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-FROM $DOCKER_HUB/library/nginx:$NGINX_VERSION AS runtime
-
-
-COPY  --from=build /workspace/dist/ /usr/share/nginx/html/
-
-RUN chmod a+rwx /var/cache/nginx /var/run /var/log/nginx                        && \
-    sed -i.bak 's/listen\(.*\)80;/listen 8080;/' /etc/nginx/conf.d/default.conf && \
-    sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
-
+# Fix permissions before switching user
+RUN mkdir -p /usr/share/nginx/html/assets/config && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 8080
-
 USER nginx
 
-HEALTHCHECK     CMD     [ "service", "nginx", "status" ]
-
-
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

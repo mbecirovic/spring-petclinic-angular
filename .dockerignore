@@ -1,1 +1,9 @@
 node_modules
+.git
+.github
+dist
+docs
+e2e
+.editorconfig
+.gitignore
+*.md
