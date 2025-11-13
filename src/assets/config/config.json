@@ -1,3 +1,3 @@
 {
-  "REST_API_URL": "http://localhost:9966/petclinic/api/"
+  "REST_API_URL": "https://backend.p2.praksa.abhapp.com/petclinic/api/"
 }
