@@ -27,3 +27,14 @@ jobs:
           push: true
           tags: registry.p2.praksa.abhapp.com/petclinic/petclinic-angular:${{ github.sha }}
           file: ./Dockerfile
+
+      - name: Trigger infra repo deployment
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.PAT_INFRA_REPO }}
+          repository: mbecirovic/infra
+          event-type: deploy-frontend
+          client-payload: |
+            {
+              "image_tag": "${{ github.sha }}"
+            }
