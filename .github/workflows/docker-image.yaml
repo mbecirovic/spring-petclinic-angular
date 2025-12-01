@@ -27,8 +27,6 @@ jobs:
           push: true
           tags: registry.p2.praksa.abhapp.com/petclinic/petclinic-angular:${{ github.sha }}
           file: ./Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Trigger infra repo deployment on EC2
         uses: peter-evans/repository-dispatch@v4
