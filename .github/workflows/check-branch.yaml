@@ -1,0 +1,18 @@
+name: Enforce develop -> master
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if not from develop
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "PRs to main must come from develop"
+            exit 1
+          fi
+
+
