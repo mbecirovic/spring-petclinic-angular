@@ -11,7 +11,7 @@ jobs:
       - name: Fail if not from develop
         run: |
           if [ "${{ github.head_ref }}" != "develop" ]; then
-            echo "PRs to main must come from develop"
+            echo "PRs to main must come from develop."
             exit 1
           fi
 
