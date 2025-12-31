@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fail if not from develop
+        env:
+          PR_BRANCH: ${{ github.head_ref }}
         run: |
-          if [ "${{ github.head_ref }}" != "develop" ]; then
+          if [ "$PR_BRANCH" != "develop" ]; then
             echo "PRs to main must come from develop."
             exit 1
           fi
